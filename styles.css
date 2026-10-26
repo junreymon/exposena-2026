@@ -1771,3 +1771,20 @@ button {
     width: 100%;
   }
 }
+
+/* Instructor UI */
+.instructor-unlock-hint {
+  display: flex;
+  align-items: center;
+}
+
+.instructor-badge-active {
+  background: rgba(57, 169, 0, 0.2);
+  border: 1px solid var(--sena-green);
+  color: #4ade80;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+}
+

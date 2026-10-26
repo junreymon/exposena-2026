@@ -579,41 +579,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIGURACIÓN DE NUBE GRATUITA / SERVIDOR GITHUB -->
-  <div class="modal-backdrop" id="cloudModal" role="dialog" aria-modal="true">
-    <div class="modal-card modal-large">
-      <div class="modal-header">
-        <div class="modal-icon">☁️</div>
-        <div>
-          <h3>Servidor Gratuito GitHub & Opciones de Almacenamiento</h3>
-          <p>¿Cómo funciona el almacenamiento de fotos en GitHub Pages?</p>
-        </div>
-        <button class="modal-close" id="btnCloseCloudModal">&times;</button>
-      </div>
-      <div class="modal-body cloud-help-body">
-        <div class="cloud-info-box">
-          <h4>🚀 1. Despliegue 100% Gratuito en GitHub Pages</h4>
-          <p>Esta página web está diseñada con HTML5, CSS3 y JavaScript moderno nativo. Puedes subir esta carpeta a un repositorio en GitHub y activar <strong>GitHub Pages</strong> con 2 clics.</p>
-        </div>
 
-        <div class="cloud-info-box">
-          <h4>💾 2. Almacenamiento Local (IndexedDB) Activo</h4>
-          <p>La aplicación utiliza <strong>IndexedDB</strong>, la base de datos de alta capacidad del navegador. Permite almacenar cientos de fotos en alta resolución en el celular o computador sin gastar datos y sin necesidad de configurar ningún servidor.</p>
-          <p>Cualquier instructor o evaluador puede pulsar <strong>"Descargar Reporte (Excel)"</strong> y <strong>"Descargar Todas las Fotos (ZIP)"</strong> para consolidar las evidencias.</p>
-        </div>
-
-        <div class="cloud-info-box">
-          <h4>🌐 3. Opcional: Sincronización en la Nube con Google Sheets / Google Drive</h4>
-          <p>Si deseas que las fotos que sube cada aprendiz desde su propio teléfono se guarden automáticamente en una carpeta de Google Drive y se listen en un Google Sheet en vivo, puedes conectar un Webhook de Google Apps Script gratuito:</p>
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="webhookUrlInput">URL de Google Webhook o ImgBB API (Opcional):</label>
-            <input type="url" id="webhookUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
-          </div>
-          <button class="btn-secondary" id="btnSaveWebhook">Guardar Conexión en la Nube</button>
-        </div>
-
-      </div>
-    </div>
   <!-- MODAL: AUTENTICACIÓN DE INSTRUCTOR -->
   <div class="modal-backdrop" id="instructorModal" role="dialog" aria-modal="true" aria-labelledby="instructorModalTitle">
     <div class="modal-card">
@@ -628,8 +594,8 @@
       <form id="instructorForm" class="modal-body">
         <div class="form-group">
           <label for="instructorDocInput">Número de Cédula del Instructor <span class="required">*</span></label>
-          <input type="password" id="instructorDocInput" class="form-input" placeholder="Ingresa tu documento..." required autocomplete="off">
-          <small class="form-hint">Ingresa tu documento autorizado (1099202449) para desbloquear descargas y gestión.</small>
+          <input type="text" id="instructorDocInput" class="form-input" placeholder="Ej: 1099202449" required autocomplete="off" inputmode="numeric">
+          <small class="form-hint">Ingresa tu número de documento autorizado (1099202449) para desbloquear descargas y gestión.</small>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn-primary" style="width: 100%;">
