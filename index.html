@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXPOSENA CGAO 2026 - Registro y Evidencias Fotográficas</title>
+  <meta name="description" content="Portal oficial de registro y carga de evidencias fotográficas para la Exposena CGAO 2026. Investigación, Deportes, Karting, Carnaval y Feria Empresarial.">
+  <meta name="theme-color" content="#39A900">
+
+  <!-- Favicon y Fuentes -->
+  <link rel="icon" type="image/png" href="assets/sena-logo-transparent.png">
+  <link rel="shortcut icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/sena-logo-transparent.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CDN de librerías para descarga ZIP y compatibilidad GitHub Pages -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Barra de Notificaciones / Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Header Superior / Barra de Navegación -->
+  <header class="main-header">
+    <div class="header-inner container">
+      <div class="brand">
+        <div class="sena-logo-icon">
+          <!-- Icono Oficial SENA Verde -->
+          <img src="assets/sena-logo-transparent.png" alt="Logo SENA Verde" class="sena-logo-img">
+        </div>
+        <div class="brand-text">
+          <span class="brand-tag">SENA CGAO • 2026</span>
+          <h1 class="brand-title">EXPOSENA <span>2026</span></h1>
+        </div>
+      </div>
+
+      <!-- Estado de Aprendiz Conectado -->
+      <div class="user-session-bar" id="userSessionBar">
+        <div class="user-badge" id="userBadge" style="display: none;">
+          <div class="user-avatar" id="userAvatar">AP</div>
+          <div class="user-info">
+            <span class="user-name" id="displayUserName">Aprendiz</span>
+            <span class="user-cedula" id="displayUserCedula">C.C. 00000000</span>
+          </div>
+          <button class="btn-logout" id="btnLogout" title="Cambiar de Aprendiz">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Cambiar</span>
+          </button>
+        </div>
+        <button class="btn-primary" id="btnLoginTrigger">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Ingreso de Aprendiz</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-bg-glow"></div>
+    <div class="container hero-content">
+      <div class="hero-text-col">
+        <div class="hero-chip">
+          <span class="pulse-dot"></span> Del 27 al 31 de Octubre de 2026
+        </div>
+        <h2 class="hero-title">Registro Oficial de <span>Evidencias Fotográficas</span></h2>
+        <p class="hero-desc">
+          Bienvenido al portal institucional de <strong>EXPOSENA CGAO 2026</strong>. Aquí cada aprendiz registra su participación, actividades de investigación, deportes, karting, carnaval y feria empresarial.
+        </p>
+        <div class="hero-actions">
+          <a href="#subir" class="btn-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Subir Mi Evidencia
+          </a>
+          <a href="#cronograma" class="btn-secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Ver Cronograma
+          </a>
+          <a href="#galeria" class="btn-secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Ver Galería (<span id="totalEvidenciasCount">0</span>)
+          </a>
+        </div>
+      </div>
+      <div class="hero-image-col">
+        <div class="banner-card-wrapper" onclick="window.ExposenaApp.openBannerLightbox()" style="cursor: pointer;" title="Toca para ampliar el afiche oficial de la Exposena 2026">
+          <img src="assets/banner.jpg" alt="Exposena CGAO 2026 Afiche Oficial" class="hero-banner-img">
+          <div class="banner-badge">🔍 Toca para ampliar el afiche</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Métricas Rápidas -->
+  <section class="stats-bar container">
+    <div class="stat-card">
+      <span class="stat-num" id="statTotalEvidencias">0</span>
+      <span class="stat-label">Evidencias Subidas</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" id="statTotalAprendices">0</span>
+      <span class="stat-label">Aprendices Participantes</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">5 Días</span>
+      <span class="stat-label">Cronograma Activo</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Compatible GitHub Pages</span>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 1: CRONOGRAMA OFICIAL EXPOSENA CGAO 2026 -->
+  <section id="cronograma" class="section cronograma-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag">Agenda Institucional</span>
+        <h2 class="section-title">Cronograma Oficial Exposena CGAO 2026</h2>
+        <p class="section-subtitle">Selecciona cualquier día para ver los horarios, ambientes asignados y cargar fotos de esa actividad específica.</p>
+      </div>
+
+      <!-- Selector de Días con Pestañas -->
+      <div class="days-nav" role="tablist">
+        <button class="day-tab active" data-day="1" role="tab" aria-selected="true">
+          <span class="day-badge">Día 1</span>
+          <span class="day-date">Mar 27 Oct</span>
+          <span class="day-title">Investigación</span>
+        </button>
+        <button class="day-tab" data-day="2" role="tab" aria-selected="false">
+          <span class="day-badge">Día 2</span>
+          <span class="day-date">Mié 28 Oct</span>
+          <span class="day-title">Deportes & Cultura</span>
+        </button>
+        <button class="day-tab" data-day="3" role="tab" aria-selected="false">
+          <span class="day-badge">Día 3</span>
+          <span class="day-date">Jue 29 Oct</span>
+          <span class="day-title">Finales & Karting</span>
+        </button>
+        <button class="day-tab" data-day="4" role="tab" aria-selected="false">
+          <span class="day-badge">Día 4</span>
+          <span class="day-date">Vie 30 Oct</span>
+          <span class="day-title">Carnaval Creatividad</span>
+        </button>
+        <button class="day-tab" data-day="5" role="tab" aria-selected="false">
+          <span class="day-badge">Día 5</span>
+          <span class="day-date">Sáb 31 Oct</span>
+          <span class="day-title">Feria Empresarial</span>
+        </button>
+      </div>
+
+      <!-- Contenedor del Detalle del Día -->
+      <div class="day-content-wrapper">
+        
+        <!-- DÍA 1 -->
+        <div class="day-panel active" id="dayPanel-1">
+          <div class="day-panel-header">
+            <div>
+              <h3>Día 1: Martes 27 de Octubre • Evento de Investigación</h3>
+              <p>Jornada académica, apertura oficial y rotación de exposición de pósteres por ambientes.</p>
+            </div>
+            <button class="btn-fast-upload" onclick="window.ExposenaApp.preselectDayAndScroll(1, 'Inscripción')">
+              + Subir foto de este día
+            </button>
+          </div>
+
+          <div class="timeline-grid">
+            <div class="timeline-item">
+              <div class="time-pill">7:45 AM</div>
+              <div class="timeline-body">
+                <h4>a) Carpa de inscripción al evento</h4>
+                <p>Llegada de grupos de la <strong>Jornada Mañana</strong> para registro y entrega de escarapelas.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="time-pill">8:00 AM - 10:00 AM</div>
+              <div class="timeline-body">
+                <h4>b) Acto de apertura y conferencias magistrales</h4>
+                <p>Auditorio principal. Presentación formal de apertura y conferencias de investigación e innovación.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item highlight">
+              <div class="time-pill">10:00 AM - 12:00 M</div>
+              <div class="timeline-body">
+                <h4>c) Exposición de Póster en el Polideportivo</h4>
+                <p>Rotación de grupos de formación con sus respectivos instructores de la siguiente forma:</p>
+                <div class="sub-schedule-grid">
+                  <div class="sub-schedule-card">
+                    <span class="sub-time">10:00 AM - 10:30 AM</span>
+                    <h5>Grupos Bloque del Laboratorio</h5>
+                    <p>Ambientes <strong>207, 208 y 110</strong></p>
+                  </div>
+                  <div class="sub-schedule-card">
+                    <span class="sub-time">10:30 AM - 11:00 AM</span>
+                    <h5>Grupos Bloque de la Biblioteca</h5>
+                    <p>Ambientes <strong>201, 202, 203 y 204</strong></p>
+                  </div>
+                  <div class="sub-schedule-card">
+                    <span class="sub-time">11:00 AM - 11:30 AM</span>
+                    <h5>Grupos Bloque Administrativo</h5>
+                    <p>Ambientes <strong>104, 206 y 205</strong></p>
+                  </div>
+                  <div class="sub-schedule-card">
+                    <span class="sub-time">11:30 AM - 12:00 M</span>
+                    <h5>Grupos del Edificio Nuevo</h5>
+                    <p>Áreas: <strong>TICs, BIM y Enfermería</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DÍA 2 -->
+        <div class="day-panel" id="dayPanel-2">
+          <div class="day-panel-header">
+            <div>
+              <h3>Día 2: Miércoles 28 de Octubre • Encuentros Deportivos & Cultura</h3>
+              <p>Jornada deportiva en el Coliseo de Ferias y velada cultural en el Centro de Formación.</p>
+            </div>
+            <button class="btn-fast-upload" onclick="window.ExposenaApp.preselectDayAndScroll(2, 'Evento Deportivo')">
+              + Subir foto de este día
+            </button>
+          </div>
+
+          <div class="timeline-grid">
+            <div class="timeline-item">
+              <div class="time-pill">8:00 AM</div>
+              <div class="timeline-body">
+                <h4>a) Evento Deportivo</h4>
+                <p>Todos los grupos deben llegar con su respectivo instructor al <strong>Coliseo de Ferias</strong> a las 8:00 am (grupos jornada mañana).</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="time-pill">3:40 PM / 4:00 PM</div>
+              <div class="timeline-body">
+                <h4>b) Acto Cultural</h4>
+                <p>Inicia a las <strong>4:00 PM</strong>. Todos los grupos de la jornada tarde y noche con el respectivo instructor deben llegar al <strong>Centro de Formación a las 3:40 PM</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DÍA 3 -->
+        <div class="day-panel" id="dayPanel-3">
+          <div class="day-panel-header">
+            <div>
+              <h3>Día 3: Jueves 29 de Octubre • Finales Deportivas & SENA Karting</h3>
+              <p>Competencias decisivas y la emocionante carrera de SENA Karting por la novena.</p>
+            </div>
+            <button class="btn-fast-upload" onclick="window.ExposenaApp.preselectDayAndScroll(3, 'Finales Deportivas')">
+              + Subir foto de este día
+            </button>
+          </div>
+
+          <div class="timeline-grid">
+            <div class="timeline-item">
+              <div class="time-pill">8:00 AM</div>
+              <div class="timeline-body">
+                <h4>a) Finales Deportivas</h4>
+                <p>Los grupos de la mañana deben llegar a las <strong>8:00 am en el Coliseo de Ferias</strong> con el respectivo instructor para las rondas de campeonato.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item highlight">
+              <div class="time-pill">1:50 PM / 2:00 PM</div>
+              <div class="timeline-body">
+                <h4>b) SENA Karting 🏁</h4>
+                <p>Inicia a las <strong>2:00 PM</strong>. Todos los grupos de la tarde deben llegar al <strong>Parque Nacional del Folclor a la 1:50 PM</strong> (se van desplazando a observar la competencia por la novena).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DÍA 4 -->
+        <div class="day-panel" id="dayPanel-4">
+          <div class="day-panel-header">
+            <div>
+              <h3>Día 4: Viernes 30 de Octubre • Carnaval de la Creatividad 🎭</h3>
+              <p>Desfile institucional de comparsas, disfraces, innovación y talento artístico.</p>
+            </div>
+            <button class="btn-fast-upload" onclick="window.ExposenaApp.preselectDayAndScroll(4, 'Carnaval')">
+              + Subir foto de este día
+            </button>
+          </div>
+
+          <div class="timeline-grid">
+            <div class="timeline-item highlight">
+              <div class="time-pill">8:45 AM</div>
+              <div class="timeline-body">
+                <h4>Carnaval de la Creatividad</h4>
+                <p>Todos los grupos de las <strong>3 jornadas (Mañana, Tarde y Noche)</strong> deben llegar al <strong>Parque del Folclor, por la calle décima a las 8:45 AM</strong> acompañados con su respectivo instructor.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DÍA 5 -->
+        <div class="day-panel" id="dayPanel-5">
+          <div class="day-panel-header">
+            <div>
+              <h3>Día 5: Sábado 31 de Octubre • Feria Empresarial 🚀</h3>
+              <p>Muestra de emprendimientos, proyectos productivos e innovación comercial SENA.</p>
+            </div>
+            <button class="btn-fast-upload" onclick="window.ExposenaApp.preselectDayAndScroll(5, 'Feria Empresarial')">
+              + Subir foto de este día
+            </button>
+          </div>
+
+          <div class="timeline-grid">
+            <div class="timeline-item highlight">
+              <div class="time-pill">9:00 AM</div>
+              <div class="timeline-body">
+                <h4>Feria Empresarial y de Emprendimiento</h4>
+                <p>Todos cordialmente invitados desde las <strong>9:00 AM en el Parque del Folclor</strong> para recorrer stands, apoyar a los aprendices emprendedores y clausurar la Exposena 2026.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: FORMULARIO DE CARGA DE EVIDENCIA -->
+  <section id="subir" class="section upload-section">
+    <div class="container">
+      <div class="upload-wrapper">
+        
+        <div class="upload-header">
+          <span class="section-tag">Subir Evidencia</span>
+          <h2 class="section-title">Registro Fotográfico del Aprendiz</h2>
+          <p class="section-subtitle">
+            Toma la foto directamente con la cámara de tu celular o selecciona una imagen de tu galería. Quedará registrada con tu nombre, cédula y la actividad del cronograma.
+          </p>
+        </div>
+
+        <!-- Mensaje si no está logueado -->
+        <div class="auth-notice" id="authNotice">
+          <div class="auth-notice-icon">⚠️</div>
+          <div class="auth-notice-text">
+            <h4>No has iniciado sesión de Aprendiz</h4>
+            <p>Para garantizar que la evidencia quede a tu nombre y cédula, debes identificarte antes de guardar la foto.</p>
+          </div>
+          <button class="btn-primary" id="btnOpenAuthFromUpload">Ingresar mis Datos</button>
+        </div>
+
+        <form id="uploadForm" class="upload-form" novalidate>
+          
+          <!-- Datos del Aprendiz (Auto-completados si está logueado) -->
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="inputNombre">Nombre Completo del Aprendiz <span class="required">*</span></label>
+              <input type="text" id="inputNombre" name="nombre" class="form-input" placeholder="Ej: Brayan Stiven Gómez Pérez" required>
+            </div>
+            <div class="form-group">
+              <label for="inputCedula">Número de Cédula / Documento <span class="required">*</span></label>
+              <input type="text" id="inputCedula" name="cedula" class="form-input" placeholder="Ej: 1098765432" required pattern="[0-9]+">
+            </div>
+          </div>
+
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="inputAmbiente">Ambiente de Formación o Ficha <span class="required">*</span></label>
+              <input type="text" id="inputAmbiente" name="ambiente" class="form-input" placeholder="Ej: Ambiente 207 / Ficha 2826543 ADSO" required>
+            </div>
+            <div class="form-group">
+              <label for="inputInstructor">Instructor a Cargo (Opcional)</label>
+              <input type="text" id="inputInstructor" name="instructor" class="form-input" placeholder="Ej: Ing. Carlos Morales">
+            </div>
+          </div>
+
+          <!-- Selección del Cronograma -->
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="selectDia">Día del Evento (Cronograma) <span class="required">*</span></label>
+              <select id="selectDia" name="dia" class="form-select" required>
+                <option value="1">Día 1: Martes 27 Octubre - Investigación</option>
+                <option value="2">Día 2: Miércoles 28 Octubre - Deportes & Cultura</option>
+                <option value="3">Día 3: Jueves 29 Octubre - Finales & Karting</option>
+                <option value="4">Día 4: Viernes 30 Octubre - Carnaval Creatividad</option>
+                <option value="5">Día 5: Sábado 31 Octubre - Feria Empresarial</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="selectActividad">Actividad / Horario Específico <span class="required">*</span></label>
+              <select id="selectActividad" name="actividad" class="form-select" required>
+                <!-- Se pobla dinámicamente según el día -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Selector de Imagen / Cámara -->
+          <div class="form-group">
+            <label>Evidencia Fotográfica <span class="required">*</span></label>
+            <div class="drop-zone" id="dropZone">
+              <input type="file" id="fileInput" name="foto" accept="image/*" class="file-input-hidden">
+              
+              <div class="drop-zone-prompt" id="dropPrompt">
+                <div class="upload-icon-circle">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                <div class="prompt-text">
+                  <strong>Toca aquí para Tomar Foto o Subir Imagen</strong>
+                  <span>Soporta JPG, PNG, WEBP (Se optimiza automáticamente para no gastar tus datos)</span>
+                </div>
+                <div class="prompt-buttons">
+                  <button type="button" class="btn-small-action" id="btnTriggerCamera">
+                    📷 Usar Cámara
+                  </button>
+                  <button type="button" class="btn-small-action" id="btnTriggerGallery">
+                    🖼️ Abrir Galería
+                  </button>
+                </div>
+              </div>
+
+              <!-- Vista Previa de la Imagen Seleccionada -->
+              <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                <img id="imagePreview" src="" alt="Vista previa de evidencia">
+                <div class="preview-overlay">
+                  <span id="previewFileInfo">Foto lista</span>
+                  <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Quitar foto">✕ Cambiar Foto</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Descripción o Apuntes -->
+          <div class="form-group">
+            <label for="inputDescripcion">Descripción o Comentario de la Evidencia</label>
+            <textarea id="inputDescripcion" name="descripcion" class="form-textarea" rows="2" placeholder="Ej: Presentación de póster de investigación sobre software agrícola ante los instructores y jurados evaluadores."></textarea>
+          </div>
+
+          <!-- Botón de Envío -->
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" id="btnSubmitEvidence">
+              <span class="btn-spinner" id="btnSpinner" style="display: none;"></span>
+              <span id="btnSubmitText">💾 Guardar Evidencia Fotográfica</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: GALERÍA DE EVIDENCIAS Y REGISTRO -->
+  <section id="galeria" class="section gallery-section">
+    <div class="container">
+      
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-tag">Registro en Tiempo Real</span>
+          <h2 class="section-title">Galería de Evidencias Subidas</h2>
+          <p class="section-subtitle">Visualiza, filtra y descarga las evidencias cargadas por los aprendices durante los 5 días de la Exposena.</p>
+        </div>
+
+        <div class="header-tools">
+          <button class="btn-export-excel" id="btnExportCSV">
+            📊 Descargar Reporte (Excel)
+          </button>
+          <button class="btn-export-zip" id="btnExportZIP">
+            📦 Descargar Todas las Fotos (ZIP)
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="gallery-controls">
+        <div class="filter-pills" id="galleryFilterPills">
+          <button class="filter-pill active" data-filter="all">Todos (<span id="countAll">0</span>)</button>
+          <button class="filter-pill" data-filter="1">Día 1 (<span id="countD1">0</span>)</button>
+          <button class="filter-pill" data-filter="2">Día 2 (<span id="countD2">0</span>)</button>
+          <button class="filter-pill" data-filter="3">Día 3 (<span id="countD3">0</span>)</button>
+          <button class="filter-pill" data-filter="4">Día 4 (<span id="countD4">0</span>)</button>
+          <button class="filter-pill" data-filter="5">Día 5 (<span id="countD5">0</span>)</button>
+        </div>
+
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar por Aprendiz, Cédula o Ambiente...">
+        </div>
+      </div>
+
+      <!-- Grilla de Evidencias -->
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- Renderizado dinámico desde app.js -->
+      </div>
+
+      <!-- Estado Vacío -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">📷</div>
+        <h3>No se encontraron evidencias</h3>
+        <p>Aún no hay fotos registradas para este filtro o búsqueda. ¡Sé el primero en subir tu evidencia fotográfica!</p>
+        <a href="#subir" class="btn-primary" style="margin-top: 15px;">Subir Evidencia Ahora</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MODAL: INGRESO / LOGIN DE APRENDIZ -->
+  <div class="modal-backdrop" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <img src="assets/sena-logo-transparent.png" alt="SENA" style="width: 28px; height: 28px; object-fit: contain;">
+        </div>
+        <div>
+          <h3 id="modalTitle">Ingreso de Aprendiz SENA</h3>
+          <p>Identifícate para que tus fotos queden registradas a tu nombre</p>
+        </div>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+
+      <form id="loginForm" class="modal-body">
+        <div class="form-group">
+          <label for="loginNombre">Nombre Completo del Aprendiz <span class="required">*</span></label>
+          <input type="text" id="loginNombre" class="form-input" placeholder="Ej: Brayan Stiven Gómez Pérez" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginCedula">Número de Cédula de Ciudadanía / TI <span class="required">*</span></label>
+          <input type="text" id="loginCedula" class="form-input" placeholder="Ej: 1098765432" required pattern="[0-9]+">
+          <small class="form-hint">Sólo números sin puntos ni comas</small>
+        </div>
+
+        <div class="form-group">
+          <label for="loginFicha">Ambiente / Ficha de Formación <span class="required">*</span></label>
+          <input type="text" id="loginFicha" class="form-input" placeholder="Ej: Ficha 2826543 - ADSO / Amb. 207" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginJornada">Jornada</label>
+          <select id="loginJornada" class="form-select">
+            <option value="Mañana">Jornada Mañana</option>
+            <option value="Tarde">Jornada Tarde</option>
+            <option value="Noche">Jornada Noche</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" style="width: 100%;">
+            Confirmar e Ingresar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VISOR DE FOTO EN PANTALLA COMPLETA (LIGHTBOX) -->
+  <div class="lightbox-modal" id="lightboxModal" role="dialog" aria-hidden="true">
+    <button class="lightbox-close" id="btnLightboxClose">&times;</button>
+    <div class="lightbox-content">
+      <img id="lightboxImage" src="" alt="Evidencia en tamaño completo">
+      <div class="lightbox-details" id="lightboxDetails">
+        <!-- Rellenado dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURACIÓN DE NUBE GRATUITA / SERVIDOR GITHUB -->
+  <div class="modal-backdrop" id="cloudModal" role="dialog" aria-modal="true">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div class="modal-icon">☁️</div>
+        <div>
+          <h3>Servidor Gratuito GitHub & Opciones de Almacenamiento</h3>
+          <p>¿Cómo funciona el almacenamiento de fotos en GitHub Pages?</p>
+        </div>
+        <button class="modal-close" id="btnCloseCloudModal">&times;</button>
+      </div>
+      <div class="modal-body cloud-help-body">
+        <div class="cloud-info-box">
+          <h4>🚀 1. Despliegue 100% Gratuito en GitHub Pages</h4>
+          <p>Esta página web está diseñada con HTML5, CSS3 y JavaScript moderno nativo. Puedes subir esta carpeta a un repositorio en GitHub y activar <strong>GitHub Pages</strong> con 2 clics.</p>
+        </div>
+
+        <div class="cloud-info-box">
+          <h4>💾 2. Almacenamiento Local (IndexedDB) Activo</h4>
+          <p>La aplicación utiliza <strong>IndexedDB</strong>, la base de datos de alta capacidad del navegador. Permite almacenar cientos de fotos en alta resolución en el celular o computador sin gastar datos y sin necesidad de configurar ningún servidor.</p>
+          <p>Cualquier instructor o evaluador puede pulsar <strong>"Descargar Reporte (Excel)"</strong> y <strong>"Descargar Todas las Fotos (ZIP)"</strong> para consolidar las evidencias.</p>
+        </div>
+
+        <div class="cloud-info-box">
+          <h4>🌐 3. Opcional: Sincronización en la Nube con Google Sheets / Google Drive</h4>
+          <p>Si deseas que las fotos que sube cada aprendiz desde su propio teléfono se guarden automáticamente en una carpeta de Google Drive y se listen en un Google Sheet en vivo, puedes conectar un Webhook de Google Apps Script gratuito:</p>
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="webhookUrlInput">URL de Google Webhook o ImgBB API (Opcional):</label>
+            <input type="url" id="webhookUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <button class="btn-secondary" id="btnSaveWebhook">Guardar Conexión en la Nube</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <div class="footer-logo">
+          <img src="assets/sena-logo-transparent.png" alt="Logo SENA" style="width: 36px; height: 36px; object-fit: contain;">
+          <div>
+            <strong>SENA CGAO</strong>
+            <span>Centro de Gestión Agroempresarial del Oriente</span>
+          </div>
+        </div>
+        <p>Exposena 2026: Investigación, Deporte, Karting, Cultura y Emprendimiento.</p>
+      </div>
+
+      <div class="footer-right">
+        <button class="btn-text-action" id="btnOpenCloudHelp">
+          ☁️ Guía de GitHub & Nube
+        </button>
+        <button class="btn-text-action text-danger" id="btnClearAllData">
+          🗑️ Restablecer Datos
+        </button>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">
+      <p>© 2026 Servicio Nacional de Aprendizaje SENA. Desarrollado para aprendices e instructores CGAO.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
