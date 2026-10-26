@@ -137,6 +137,42 @@ class EvidenceStorage {
 // Inicialización de la Aplicación
 const storage = new EvidenceStorage();
 
+// Documento Oficial del Instructor Autorizado para Descargas y Eliminación
+const INSTRUCTOR_CEDULA = "1099202449";
+
+function isInstructor() {
+  const isLoggedDoc = AppState.currentUser && String(AppState.currentUser.cedula).trim() === INSTRUCTOR_CEDULA;
+  const isStoredAuth = localStorage.getItem("exposena_instructor_auth") === INSTRUCTOR_CEDULA;
+  return Boolean(isLoggedDoc || isStoredAuth);
+}
+
+function updateInstructorUI() {
+  const instructorTools = document.getElementById("instructorTools");
+  const instructorUnlockHint = document.getElementById("instructorUnlockHint");
+  const btnInstructorTrigger = document.getElementById("btnInstructorTrigger");
+  const instructorStatusLabel = document.getElementById("instructorStatusLabel");
+
+  if (isInstructor()) {
+    if (instructorTools) instructorTools.style.display = "flex";
+    if (instructorUnlockHint) instructorUnlockHint.style.display = "none";
+    if (instructorStatusLabel) instructorStatusLabel.textContent = "👨‍🏫 Instructor (Salir)";
+    if (btnInstructorTrigger) {
+      btnInstructorTrigger.style.background = "rgba(57, 169, 0, 0.25)";
+      btnInstructorTrigger.style.borderColor = "var(--sena-green)";
+      btnInstructorTrigger.style.color = "#4ade80";
+    }
+  } else {
+    if (instructorTools) instructorTools.style.display = "none";
+    if (instructorUnlockHint) instructorUnlockHint.style.display = "block";
+    if (instructorStatusLabel) instructorStatusLabel.textContent = "Instructor";
+    if (btnInstructorTrigger) {
+      btnInstructorTrigger.style.background = "";
+      btnInstructorTrigger.style.borderColor = "";
+      btnInstructorTrigger.style.color = "";
+    }
+  }
+}
+
 const AppState = {
   currentUser: null,
   currentFilter: "all",
@@ -251,14 +287,25 @@ function saveUser(nombre, cedula, ficha, jornada) {
   };
   localStorage.setItem("exposena_current_user", JSON.stringify(user));
   AppState.currentUser = user;
+
+  if (user.cedula === INSTRUCTOR_CEDULA) {
+    localStorage.setItem("exposena_instructor_auth", INSTRUCTOR_CEDULA);
+    showToast(`¡Bienvenido Instructor ${user.nombre}! Permisos de administración activos.`, "success");
+  } else {
+    showToast(`¡Bienvenido, ${user.nombre}!`, "success");
+  }
+
   updateUserUI();
-  showToast(`¡Bienvenido, ${user.nombre}!`, "success");
+  updateInstructorUI();
+  renderGallery();
 }
 
 function logoutUser() {
   localStorage.removeItem("exposena_current_user");
   AppState.currentUser = null;
   updateUserUI();
+  updateInstructorUI();
+  renderGallery();
   showToast("Sesión cerrada. Puedes ingresar con otro aprendiz.", "info");
 }
 
@@ -700,12 +747,18 @@ function renderGallery() {
         ${item.descripcion ? `<p class="evidence-notes">${item.descripcion}</p>` : ''}
 
         <div class="evidence-actions">
-          <button class="btn-card-action" onclick="window.ExposenaApp.downloadSingleImage('${item.id}')" title="Descargar imagen">
-            💾 Guardar Foto
-          </button>
-          <button class="btn-card-action text-danger" onclick="window.ExposenaApp.deleteItem('${item.id}')" title="Eliminar evidencia">
-            🗑️ Eliminar
-          </button>
+          ${isInstructor() ? `
+            <button class="btn-card-action" onclick="window.ExposenaApp.downloadSingleImage('${item.id}')" title="Descargar imagen (Exclusivo Instructor)">
+              💾 Guardar Foto
+            </button>
+            <button class="btn-card-action text-danger" onclick="window.ExposenaApp.deleteItem('${item.id}')" title="Eliminar evidencia (Exclusivo Instructor)">
+              🗑️ Eliminar
+            </button>
+          ` : `
+            <button class="btn-card-action" onclick="window.ExposenaApp.openLightbox('${item.id}')" title="Ver foto en tamaño completo">
+              🔍 Ver Detalle
+            </button>
+          `}
         </div>
       </div>
     `;
@@ -753,6 +806,12 @@ function initGalleryControls() {
 // ==========================================================================
 
 function exportToCSV() {
+  if (!isInstructor()) {
+    showToast("Acceso denegado: Solo el instructor autorizado (C.C. 1099202449) puede descargar el reporte.", "error");
+    openModal("instructorModal");
+    return;
+  }
+
   if (AppState.allEvidences.length === 0) {
     showToast("No hay evidencias registradas para exportar.", "error");
     return;
@@ -799,6 +858,12 @@ function exportToCSV() {
 }
 
 async function exportToZIP() {
+  if (!isInstructor()) {
+    showToast("Acceso denegado: Solo el instructor autorizado (C.C. 1099202449) puede descargar las fotos en ZIP.", "error");
+    openModal("instructorModal");
+    return;
+  }
+
   if (AppState.allEvidences.length === 0) {
     showToast("No hay fotos registradas para descargar.", "error");
     return;
@@ -942,11 +1007,54 @@ function initModals() {
       }
     });
   }
+  // Instructor Modal & Trigger
+  const btnInstructorTrigger = document.getElementById("btnInstructorTrigger");
+  const btnCloseInstructorModal = document.getElementById("btnCloseInstructorModal");
+  const instructorForm = document.getElementById("instructorForm");
+
+  if (btnInstructorTrigger) {
+    btnInstructorTrigger.addEventListener("click", () => {
+      if (isInstructor()) {
+        if (confirm("¿Deseas cerrar la sesión del Modo Instructor?")) {
+          localStorage.removeItem("exposena_instructor_auth");
+          updateInstructorUI();
+          renderGallery();
+          showToast("Has salido del Modo Instructor.", "info");
+        }
+      } else {
+        openModal("instructorModal");
+      }
+    });
+  }
+
+  if (btnCloseInstructorModal) {
+    btnCloseInstructorModal.addEventListener("click", () => closeModal("instructorModal"));
+  }
+
+  if (instructorForm) {
+    instructorForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const docInput = document.getElementById("instructorDocInput").value.trim();
+      if (docInput === INSTRUCTOR_CEDULA) {
+        localStorage.setItem("exposena_instructor_auth", INSTRUCTOR_CEDULA);
+        updateInstructorUI();
+        renderGallery();
+        closeModal("instructorModal");
+        document.getElementById("instructorDocInput").value = "";
+        showToast("¡Modo Instructor Autorizado! Descargas y gestión desbloqueadas.", "success");
+      } else {
+        showToast("Documento no autorizado. Solo el instructor asignado tiene acceso.", "error");
+      }
+    });
+  }
 }
 
 // Objeto Global Expuesto para Eventos Inline en HTML
 window.ExposenaApp = {
   preselectDayAndScroll,
+  requestInstructorAccess: () => {
+    openModal("instructorModal");
+  },
   openLightbox: (id) => {
     const item = AppState.allEvidences.find(e => e.id === id);
     if (!item) return;
@@ -966,6 +1074,11 @@ window.ExposenaApp = {
     lightboxModal.classList.add("active");
   },
   downloadSingleImage: (id) => {
+    if (!isInstructor()) {
+      showToast("Acceso denegado: Solo el instructor autorizado puede descargar fotos.", "error");
+      openModal("instructorModal");
+      return;
+    }
     const item = AppState.allEvidences.find(e => e.id === id);
     if (!item) return;
     const cleanNombre = item.nombre.replace(/[^a-zA-Z0-9]/g, "_");
@@ -994,10 +1107,15 @@ window.ExposenaApp = {
     lightboxModal.classList.add("active");
   },
   deleteItem: async (id) => {
-    if (confirm("¿Deseas eliminar esta evidencia fotográfica?")) {
+    if (!isInstructor()) {
+      showToast("Acceso denegado: Solo el instructor autorizado (C.C. 1099202449) puede eliminar evidencias.", "error");
+      openModal("instructorModal");
+      return;
+    }
+    if (confirm("¿Estás seguro de que deseas eliminar esta evidencia fotográfica? Esta acción no se puede deshacer.")) {
       await storage.deleteEvidence(id);
       await refreshEvidenceList();
-      showToast("Evidencia eliminada.", "info");
+      showToast("Evidencia eliminada correctamente.", "info");
     }
   }
 };
@@ -1006,6 +1124,7 @@ window.ExposenaApp = {
 document.addEventListener("DOMContentLoaded", async () => {
   await storage.init();
   loadStoredUser();
+  updateInstructorUI();
   initCronograma();
   initUploadHandlers();
   initGalleryControls();
