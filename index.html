@@ -55,7 +55,8 @@
         </div>
         <button class="btn-primary" id="btnLoginTrigger">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span>Ingreso de Aprendiz</span>
+          <span class="btn-label-full">Ingreso de Aprendiz</span>
+          <span class="btn-label-short">Ingreso</span>
         </button>
         <button class="btn-secondary" id="btnInstructorTrigger" title="Acceso Exclusivo para Instructor" style="margin-left: 8px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -626,7 +627,11 @@
     <div class="footer-bottom text-center">
       <p>© 2026 Servicio Nacional de Aprendizaje SENA. Desarrollado para aprendices e instructores CGAO.</p>
     </div>
-  </footer>
+  <!-- Botón Flotante para Móviles: Tomar Foto Rápida -->
+  <a href="#subir" class="mobile-floating-camera" id="mobileFloatingCamera" title="Tomar o Subir Foto">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <span>Subir Foto</span>
+  </a>
 
   <script src="app.js"></script>
 </body>

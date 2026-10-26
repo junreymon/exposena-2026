@@ -284,6 +284,19 @@ button {
   color: #ffffff;
 }
 
+.btn-label-short {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .btn-label-full {
+    display: none;
+  }
+  .btn-label-short {
+    display: inline;
+  }
+}
+
 .btn-cta {
   display: inline-flex;
   align-items: center;
@@ -1690,89 +1703,483 @@ button {
   }
 }
 
+/* ==========================================================================
+   OPTIMIZACIÓN MÓVIL AUTO-RESPONSIVE (< 768px y < 480px)
+   Diseñado específicamente para smartphones y tablets
+   ========================================================================== */
+
+/* Botón Flotante para Móviles (Cámara Rápida) */
+.mobile-floating-camera {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.1rem;
+  /* Contenedores y márgenes de pantalla */
+  .container {
+    padding: 0 14px;
   }
 
-  .section-title {
-    font-size: 1.7rem;
+  .section {
+    padding: 40px 0;
+  }
+
+  /* Header compacto en celular */
+  .main-header {
+    padding: 8px 0;
+  }
+
+  .sena-logo-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+
+  .brand-title {
+    font-size: 1.12rem;
+  }
+
+  .user-session-bar {
+    gap: 6px;
+  }
+
+  .user-session-bar .btn-primary,
+  .user-session-bar .btn-secondary {
+    padding: 7px 11px;
+    font-size: 0.78rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .user-badge {
+    padding: 4px 10px;
+    gap: 8px;
+    max-width: 160px;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.72rem;
+  }
+
+  .user-name {
+    font-size: 0.76rem;
+    max-width: 80px;
+  }
+
+  .user-cedula {
+    font-size: 0.65rem;
+  }
+
+  .btn-logout {
+    padding: 3px 6px;
+    font-size: 0.68rem;
+  }
+
+  /* Tipografía fluida en Hero */
+  .hero-section {
+    padding: 25px 0 20px 0;
+  }
+
+  .hero-chip {
+    font-size: 0.74rem;
+    padding: 5px 12px;
+    margin-bottom: 12px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.65rem, 6.5vw, 2.25rem);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+
+  .hero-desc {
+    font-size: 0.94rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .hero-actions a {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 0.92rem;
+  }
+
+  .banner-card-wrapper {
+    transform: none !important;
+    border-radius: var(--radius-md);
+    margin: 15px auto 0 auto;
+  }
+
+  /* Barra de Estadísticas en 2 Columnas */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 20px auto;
+  }
+
+  .stat-card {
+    padding: 12px 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .stat-num {
+    font-size: 1.55rem;
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+  }
+
+  /* Selector de Días Horizontal Táctil */
+  .days-nav {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    scrollbar-width: thin;
+  }
+
+  .days-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .days-nav::-webkit-scrollbar-thumb {
+    background: var(--border-accent);
+    border-radius: 4px;
+  }
+
+  .day-tab {
+    flex: 0 0 115px;
+    min-width: 115px;
+    scroll-snap-align: start;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  .day-badge {
+    font-size: 0.66rem;
+    padding: 2px 6px;
+  }
+
+  .day-date {
+    font-size: 0.8rem;
+  }
+
+  .day-title {
+    font-size: 0.7rem;
+  }
+
+  /* Paneles de Contenido del Cronograma */
+  .day-content-wrapper {
+    padding: 18px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .day-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+  }
+
+  .day-panel-header h3 {
+    font-size: 1.15rem;
+  }
+
+  .day-panel-header p {
+    font-size: 0.84rem;
+  }
+
+  .btn-fast-upload {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.86rem;
+  }
+
+  .timeline-grid {
+    gap: 12px;
   }
 
   .timeline-item {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .time-pill {
+    align-self: flex-start;
+    font-size: 0.76rem;
+    padding: 4px 10px;
+  }
+
+  .timeline-body h4 {
+    font-size: 0.96rem;
+  }
+
+  .timeline-body p {
+    font-size: 0.86rem;
+  }
+
+  .sub-schedule-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sub-schedule-card {
+    padding: 10px 12px;
+  }
+
+  /* Formulario de Carga en Móvil */
+  .upload-wrapper {
+    padding: 20px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .section-title {
+    font-size: 1.55rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.88rem;
   }
 
   .form-row-2 {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .upload-wrapper {
-    padding: 24px 18px;
+  /* ENTRADAS TÁCTILES: 16px mínimo para evitar zoom molesto de iOS Safari */
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px !important;
+    padding: 13px 14px;
+    border-radius: var(--radius-sm);
   }
 
+  /* Zona de Fotografía / Cámara para Dedos */
+  .drop-zone {
+    padding: 22px 14px;
+  }
+
+  .prompt-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 290px;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  #btnTriggerCamera {
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 0.96rem;
+    font-weight: 800;
+    background: var(--sena-green);
+    color: #000;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 14px var(--sena-green-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #btnTriggerGallery {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-submit {
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Galería y Controles en Móvil */
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
   }
 
   .header-tools {
     width: 100%;
+    flex-direction: column;
   }
 
   .btn-export-excel, .btn-export-zip {
-    flex: 1;
+    width: 100%;
+    padding: 12px;
+    font-size: 0.9rem;
     justify-content: center;
   }
 
   .gallery-controls {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-pills {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 6px;
+    padding-bottom: 6px;
+  }
+
+  .filter-pill {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    flex-shrink: 0;
   }
 
   .search-box {
     max-width: 100%;
+    padding: 10px 14px;
+  }
+
+  .search-box input {
+    font-size: 16px !important;
+  }
+
+  /* Grilla de Tarjetas en Móvil (1 Sola Columna Limpia) */
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .evidence-card {
+    border-radius: var(--radius-md);
+  }
+
+  .evidence-thumb-wrapper {
+    aspect-ratio: 16 / 10;
+  }
+
+  .evidence-body {
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .evidence-actions {
+    flex-direction: row;
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .btn-card-action {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 0.82rem;
+    min-height: 40px;
+  }
+
+  /* Modales en Móvil */
+  .modal-backdrop {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 16px 18px;
+  }
+
+  .modal-body {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  /* Botón Flotante para Celular (Acceso Inmediato a la Cámara) */
+  .mobile-floating-camera {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    z-index: 990;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, var(--sena-green), #2c8c00);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.88rem;
+    border-radius: var(--radius-full);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    animation: floatBounce 2.5s infinite ease-in-out;
+  }
+
+  @keyframes floatBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
   }
 
   .footer-content {
     flex-direction: column;
     text-align: center;
-  }
-
-  .footer-right {
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 14px;
+    padding-bottom: 20px;
   }
 }
 
-@media (max-width: 480px) {
-  .days-nav {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 8px;
+/* Pantallas Extra Pequeñas (< 380px) */
+@media (max-width: 380px) {
+  .brand-title {
+    font-size: 0.98rem;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 6px 9px;
+    font-size: 0.74rem;
   }
 
   .day-tab {
-    flex: 0 0 130px;
-    scroll-snap-align: start;
-  }
-
-  .brand-title {
-    font-size: 1.1rem;
-  }
-
-  .btn-cta {
-    width: 100%;
-  }
-
-  .btn-secondary {
-    width: 100%;
+    flex: 0 0 100px;
+    min-width: 100px;
   }
 }
 
-/* Instructor UI */
+/* Instructor UI Responsive */
 .instructor-unlock-hint {
   display: flex;
   align-items: center;
@@ -1787,4 +2194,5 @@ button {
   padding: 6px 12px;
   border-radius: var(--radius-full);
 }
+
 
