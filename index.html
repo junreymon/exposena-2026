@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>EXPOSENA CGAO 2026 - Registro y Evidencias Fotográficas</title>
   <meta name="description" content="Portal oficial de registro y carga de evidencias fotográficas para la Exposena CGAO 2026. Investigación, Deportes, Karting, Carnaval y Feria Empresarial.">
   <meta name="theme-color" content="#39A900">
@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.2">
 </head>
 <body>
 
@@ -40,8 +40,12 @@
         </div>
       </div>
 
-      <!-- Estado de Aprendiz Conectado / Acceso Instructor -->
+      <!-- Estado de Aprendiz Conectado / Acceso Instructor / Google Sheet -->
       <div class="user-session-bar" id="userSessionBar">
+        <button class="btn-sheet-status" id="btnHeaderSheetConfig" title="Configuración de Google Sheet">
+          <span class="sheet-status-dot" id="headerSheetDot"></span>
+          <span class="sheet-status-text" id="headerSheetText">Google Sheet</span>
+        </button>
         <div class="user-badge" id="userBadge" style="display: none;">
           <div class="user-avatar" id="userAvatar">AP</div>
           <div class="user-info">
@@ -50,7 +54,7 @@
           </div>
           <button class="btn-logout" id="btnLogout" title="Cambiar de Aprendiz">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Cambiar</span>
+            <span class="btn-logout-text">Cambiar</span>
           </button>
         </div>
         <button class="btn-primary" id="btnLoginTrigger">
@@ -58,9 +62,9 @@
           <span class="btn-label-full">Ingreso de Aprendiz</span>
           <span class="btn-label-short">Ingreso</span>
         </button>
-        <button class="btn-secondary" id="btnInstructorTrigger" title="Acceso Exclusivo para Instructor" style="margin-left: 8px;">
+        <button class="btn-secondary" id="btnInstructorTrigger" title="Acceso Exclusivo para Instructor">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span id="instructorStatusLabel">Instructor</span>
+          <span id="instructorStatusLabel" class="btn-instructor-text">Instructor</span>
         </button>
       </div>
     </div>
@@ -473,6 +477,9 @@
         </div>
 
         <div class="header-tools" id="instructorTools" style="display: none;">
+          <button class="btn-secondary" id="btnInstructorSheetConfig">
+            ⚙️ Conectar Google Sheet
+          </button>
           <button class="btn-export-excel" id="btnExportCSV">
             📊 Descargar Reporte (Excel)
           </button>
@@ -520,7 +527,7 @@
     </div>
   </section>
 
-  <!-- MODAL: INGRESO / LOGIN DE APRENDIZ -->
+  <!-- MODAL: REGISTRO DE INGRESO Y ASISTENCIA DE APRENDIZ -->
   <div class="modal-backdrop" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
       <div class="modal-header">
@@ -528,8 +535,8 @@
           <img src="assets/sena-logo-transparent.png" alt="SENA" style="width: 28px; height: 28px; object-fit: contain;">
         </div>
         <div>
-          <h3 id="modalTitle">Ingreso de Aprendiz SENA</h3>
-          <p>Identifícate para que tus fotos queden registradas a tu nombre</p>
+          <h3 id="modalTitle">Registro de Ingreso y Asistencia</h3>
+          <p>Registra tu entrada oficial y guárdala en el Google Sheet del evento</p>
         </div>
         <button class="modal-close" id="btnCloseModal">&times;</button>
       </div>
@@ -560,9 +567,33 @@
           </select>
         </div>
 
+        <!-- Foto de Ingreso / Escarapela / Selfie -->
+        <div class="form-group login-photo-group">
+          <label>Foto de Ingreso / Escarapela / Selfie <span class="badge-optional">Recomendada</span></label>
+          <input type="file" id="loginFileInput" accept="image/*" class="file-input-hidden">
+          
+          <div class="login-photo-buttons" id="loginPhotoButtons">
+            <button type="button" class="btn-login-photo-cam" id="btnLoginCamera">
+              📷 Tomar Foto de Ingreso
+            </button>
+            <button type="button" class="btn-login-photo-gal" id="btnLoginGallery">
+              🖼️ Galería
+            </button>
+          </div>
+
+          <div class="login-photo-preview" id="loginPhotoPreviewContainer" style="display: none;">
+            <img id="loginPhotoPreview" src="" alt="Foto de ingreso">
+            <div class="login-photo-meta">
+              <span id="loginPhotoInfo">Foto lista para enviar</span>
+              <button type="button" class="btn-remove-login-photo" id="btnRemoveLoginPhoto">✕ Quitar Foto</button>
+            </div>
+          </div>
+        </div>
+
         <div class="modal-footer">
-          <button type="submit" class="btn-primary" style="width: 100%;">
-            Confirmar e Ingresar
+          <button type="submit" class="btn-primary" id="btnSubmitLogin" style="width: 100%;">
+            <span class="btn-spinner" id="btnLoginSpinner" style="display: none;"></span>
+            <span id="btnLoginText">💾 Registrar Mi Ingreso (Google Sheets)</span>
           </button>
         </div>
       </form>
@@ -580,6 +611,49 @@
     </div>
   </div>
 
+  <!-- MODAL: CONFIGURACIÓN GOOGLE SHEETS -->
+  <div class="modal-backdrop" id="sheetModal" role="dialog" aria-modal="true" aria-labelledby="sheetModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon">📊</div>
+        <div>
+          <h3 id="sheetModalTitle">Conexión con Google Sheets</h3>
+          <p>Sincroniza los ingresos y fotos de todos los celulares en la nube</p>
+        </div>
+        <button class="modal-close" id="btnCloseSheetModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="sheet-connection-status-box" id="sheetStatusBox">
+          <div class="status-indicator">
+            <span class="status-circle" id="sheetModalStatusCircle"></span>
+            <strong id="sheetModalStatusTitle">Modo Local (Sin Google Sheet)</strong>
+          </div>
+          <p id="sheetModalStatusDesc">Los registros se guardan únicamente en el celular o computador actual. Pega la URL de tu Google Apps Script para que todos los dispositivos envíen los registros a tu archivo de Excel en Google Drive.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="inputSheetWebhookUrl">URL de la Aplicación Web (Google Apps Script) <span class="required">*</span></label>
+          <input type="url" id="inputSheetWebhookUrl" class="form-input" placeholder="https://script.google.com/macros/s/AKfycb.../exec" autocomplete="off">
+          <small class="form-hint">Copia la URL al publicar en Google Sheets > Extensiones > Apps Script > Implementar.</small>
+        </div>
+
+        <div class="sheet-modal-actions">
+          <button type="button" class="btn-secondary" id="btnTestSheetConnection">
+            ⚡ Probar Conexión
+          </button>
+          <button type="button" class="btn-primary" id="btnSaveSheetUrl">
+            💾 Guardar y Conectar
+          </button>
+        </div>
+
+        <div class="sheet-guide-link-box">
+          <a href="GOOGLE_SHEET_INSTRUCCIONES.md" target="_blank" class="sheet-guide-link">
+            📄 Ver Guía Paso a Paso con el Código para Google Sheets
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: AUTENTICACIÓN DE INSTRUCTOR -->
   <div class="modal-backdrop" id="instructorModal" role="dialog" aria-modal="true" aria-labelledby="instructorModalTitle">
@@ -621,12 +695,20 @@
         <p>Exposena 2026: Investigación, Deporte, Karting, Cultura y Emprendimiento.</p>
       </div>
 
-      <div class="footer-right" style="display: none;">
+      <div class="footer-right">
+        <button class="btn-text-action" id="btnFooterSheetConfig">
+          📊 Conectar Google Sheet
+        </button>
+        <button class="btn-text-action text-danger" id="btnClearAllData">
+          🗑️ Restablecer Datos Locales
+        </button>
       </div>
     </div>
     <div class="footer-bottom text-center">
       <p>© 2026 Servicio Nacional de Aprendizaje SENA. Desarrollado para aprendices e instructores CGAO.</p>
     </div>
+  </footer>
+
   <!-- Botón Flotante para Móviles: Tomar Foto Rápida -->
   <a href="#subir" class="mobile-floating-camera" id="mobileFloatingCamera" title="Tomar o Subir Foto">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>

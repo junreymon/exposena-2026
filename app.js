@@ -173,6 +173,14 @@ function updateInstructorUI() {
   }
 }
 
+// URL de Google Apps Script Oficial Integrada para Exposena 2026
+const DEFAULT_GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby_cVohS-xQvI17IvWJmdjF6wSfb52J70h5zoIPKJBOTftkGj1GKO-znZUHlHAW3qw2/exec";
+
+// Asegurar que quede configurada en el almacenamiento local del dispositivo
+if (!localStorage.getItem("exposena_google_sheet_url")) {
+  localStorage.setItem("exposena_google_sheet_url", DEFAULT_GOOGLE_SHEET_URL);
+}
+
 const AppState = {
   currentUser: null,
   currentFilter: "all",
@@ -180,8 +188,49 @@ const AppState = {
   allEvidences: [],
   selectedImageDataUrl: null,
   selectedImageFileName: "",
-  cloudWebhookUrl: localStorage.getItem("exposena_webhook_url") || ""
+  loginFotoDataUrl: null,
+  loginFotoFileName: "",
+  cloudWebhookUrl: localStorage.getItem("exposena_google_sheet_url") || DEFAULT_GOOGLE_SHEET_URL
 };
+
+function updateGoogleSheetStatus() {
+  const isConnected = Boolean(AppState.cloudWebhookUrl);
+  
+  // Badge en Barra Superior
+  const headerDot = document.getElementById("headerSheetDot");
+  const headerText = document.getElementById("headerSheetText");
+  if (headerDot) {
+    headerDot.classList.toggle("active", isConnected);
+  }
+  if (headerText) {
+    headerText.textContent = isConnected ? "🟢 Sheet Conectado" : "⚙️ Google Sheet";
+  }
+
+  // Elementos en el Modal de Google Sheet
+  const statusBox = document.getElementById("sheetStatusBox");
+  const statusCircle = document.getElementById("sheetModalStatusCircle");
+  const statusTitle = document.getElementById("sheetModalStatusTitle");
+  const statusDesc = document.getElementById("sheetModalStatusDesc");
+  const inputUrl = document.getElementById("inputSheetWebhookUrl");
+
+  if (inputUrl && AppState.cloudWebhookUrl) {
+    inputUrl.value = AppState.cloudWebhookUrl;
+  }
+
+  if (statusBox && statusCircle && statusTitle && statusDesc) {
+    if (isConnected) {
+      statusBox.classList.add("connected");
+      statusCircle.classList.add("connected");
+      statusTitle.textContent = "🟢 Google Sheet Conectado y Activo";
+      statusDesc.textContent = "Todos los registros de ingreso y fotos que suban los aprendices se enviarán en tiempo real a tu Google Sheet y Google Drive.";
+    } else {
+      statusBox.classList.remove("connected");
+      statusCircle.classList.remove("connected");
+      statusTitle.textContent = "⚪ Modo Local (Sin Google Sheet)";
+      statusDesc.textContent = "Los datos se guardan únicamente en el celular o computador actual. Pega la URL de tu Google Apps Script para centralizar los registros de todos los aprendices.";
+    }
+  }
+}
 
 // ==========================================================================
 // UTILIDADES
@@ -500,6 +549,20 @@ function initUploadHandlers() {
     clearSelectedPhoto();
   });
 
+  const mobileFloatingCamera = document.getElementById("mobileFloatingCamera");
+  if (mobileFloatingCamera) {
+    mobileFloatingCamera.addEventListener("click", (e) => {
+      e.preventDefault();
+      const uploadSec = document.getElementById("subir");
+      if (uploadSec) {
+        uploadSec.scrollIntoView({ behavior: "smooth" });
+      }
+      if (!AppState.currentUser) {
+        openModal("loginModal");
+      }
+    });
+  }
+
   async function handleImageSelection(file) {
     if (!file.type.startsWith("image/")) {
       showToast("El archivo seleccionado no es una imagen válida.", "error");
@@ -595,12 +658,14 @@ function initUploadHandlers() {
     try {
       await storage.addEvidence(evidenceItem);
       
-      // Sincronización Opcional con Nube (Google Script o Webhook) si está configurado
+      // Sincronización con Google Sheets / Google Drive si está conectado
       if (AppState.cloudWebhookUrl) {
-        syncToCloudWebhook(evidenceItem);
+        syncToGoogleSheet(evidenceItem);
+        showToast("¡Evidencia guardada y enviada a Google Sheets!", "success");
+      } else {
+        showToast("¡Evidencia fotográfica registrada con éxito (Local)!", "success");
       }
 
-      showToast("¡Evidencia fotográfica registrada con éxito!", "success");
       clearSelectedPhoto();
       document.getElementById("inputDescripcion").value = "";
 
@@ -624,29 +689,45 @@ function initUploadHandlers() {
   });
 }
 
-// Sincronización Opcional en Segundo Plano a la Nube (Google Sheets / Drive)
-async function syncToCloudWebhook(evidence) {
+// Sincronización en Segundo Plano con Google Sheets y Google Drive
+async function syncToGoogleSheet(record) {
+  const url = AppState.cloudWebhookUrl;
+  if (!url) {
+    console.info("Google Sheet no configurado. Registro almacenado en memoria local.");
+    return { success: false, reason: "no_url" };
+  }
+
+  const payload = {
+    id: record.id || ("REG-" + Date.now()),
+    tipo: record.tipo || "Evidencia Fotográfica",
+    nombre: record.nombre || "",
+    cedula: record.cedula || "",
+    ambiente: record.ambiente || record.ficha || "",
+    instructor: record.instructor || "",
+    jornada: record.jornada || (AppState.currentUser ? AppState.currentUser.jornada : "General"),
+    dia: record.dia || 1,
+    actividad: record.actividad || "Actividad Exposena CGAO 2026",
+    fecha: record.fechaFormateada || formatDate(Date.now()),
+    descripcion: record.descripcion || "",
+    fotoBase64: record.fotoDataUrl || ""
+  };
+
   try {
-    fetch(AppState.cloudWebhookUrl, {
+    // Usamos mode: 'no-cors' con 'text/plain' para evitar preflight OPTIONS de CORS en Google Apps Script
+    await fetch(url, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: evidence.id,
-        nombre: evidence.nombre,
-        cedula: evidence.cedula,
-        ambiente: evidence.ambiente,
-        instructor: evidence.instructor,
-        dia: evidence.dia,
-        actividad: evidence.actividad,
-        fecha: evidence.fechaFormateada,
-        descripcion: evidence.descripcion,
-        fotoBase64: evidence.fotoDataUrl
-      })
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
     });
-    console.log("Evidencia enviada al Webhook de la Nube.");
-  } catch (e) {
-    console.warn("No se pudo conectar al webhook de la nube (offline o URL inválida).", e);
+    console.log("Registro sincronizado exitosamente con Google Sheets:", payload.id);
+    return { success: true };
+  } catch (err) {
+    console.error("Error al sincronizar con Google Sheets:", err);
+    return { success: false, error: err };
   }
 }
 
@@ -723,10 +804,17 @@ function renderGallery() {
 
     card.innerHTML = `
       <div class="evidence-thumb-wrapper" onclick="window.ExposenaApp.openLightbox('${item.id}')">
-        <img class="evidence-thumb" src="${item.fotoDataUrl}" alt="${item.actividad}" loading="lazy">
+        ${item.fotoDataUrl ? `
+          <img class="evidence-thumb" src="${item.fotoDataUrl}" alt="${item.actividad}" loading="lazy">
+        ` : `
+          <div class="evidence-thumb-placeholder" style="width:100%; height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(57,169,0,0.2), rgba(0,0,0,0.6)); color:#4ade80;">
+            <span style="font-size:2.4rem;">📋</span>
+            <span style="font-size:0.85rem; font-weight:700; margin-top:6px;">Ingreso Oficial</span>
+          </div>
+        `}
         <div class="card-badges">
-          <span class="badge-day">Día ${item.dia}</span>
-          <span class="badge-time">${item.fechaFormateada.split(" ")[1] || ""}</span>
+          <span class="badge-day" style="${item.tipo === 'Ingreso / Asistencia' ? 'background:#39A900; color:#fff;' : ''}">${item.tipo === "Ingreso / Asistencia" ? "✅ Asistencia" : "Día " + item.dia}</span>
+          <span class="badge-time">${(item.fechaFormateada || "").split(" ")[1] || ""}</span>
         </div>
       </div>
       <div class="evidence-body">
@@ -888,9 +976,10 @@ async function exportToZIP() {
     const cleanNombre = item.nombre.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 20);
     const fileName = `Dia${item.dia}_${item.cedula}_${cleanNombre}_${index + 1}.jpg`;
 
-    // Extraer base64 crudo
-    const base64Data = item.fotoDataUrl.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
-    folderFotos.file(fileName, base64Data, { base64: true });
+    if (item.fotoDataUrl) {
+      const base64Data = item.fotoDataUrl.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
+      folderFotos.file(fileName, base64Data, { base64: true });
+    }
 
     csvText += `"${item.id}";"${item.nombre}";"${item.cedula}";"${item.ambiente}";"Dia ${item.dia}";"${item.actividad}";"${item.fechaFormateada}";"${fileName}"\r\n`;
   });
@@ -926,32 +1015,138 @@ function closeModal(modalId) {
 }
 
 function initModals() {
-  // Login Modal
+  // Login & Asistencia Modal
   const btnLoginTrigger = document.getElementById("btnLoginTrigger");
   const btnOpenAuthFromUpload = document.getElementById("btnOpenAuthFromUpload");
   const btnCloseModal = document.getElementById("btnCloseModal");
   const loginForm = document.getElementById("loginForm");
   const btnLogout = document.getElementById("btnLogout");
 
+  // Captura de Foto en Modal de Ingreso
+  const loginFileInput = document.getElementById("loginFileInput");
+  const btnLoginCamera = document.getElementById("btnLoginCamera");
+  const btnLoginGallery = document.getElementById("btnLoginGallery");
+  const loginPhotoPreviewContainer = document.getElementById("loginPhotoPreviewContainer");
+  const loginPhotoPreview = document.getElementById("loginPhotoPreview");
+  const btnRemoveLoginPhoto = document.getElementById("btnRemoveLoginPhoto");
+
+  if (btnLoginCamera && loginFileInput) {
+    btnLoginCamera.addEventListener("click", () => {
+      loginFileInput.setAttribute("capture", "user");
+      loginFileInput.click();
+    });
+  }
+
+  if (btnLoginGallery && loginFileInput) {
+    btnLoginGallery.addEventListener("click", () => {
+      loginFileInput.removeAttribute("capture");
+      loginFileInput.click();
+    });
+  }
+
+  if (loginFileInput) {
+    loginFileInput.addEventListener("change", async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const file = e.target.files[0];
+        try {
+          showToast("Procesando foto de ingreso...", "info");
+          const compressed = await compressImage(file, 1200, 0.78);
+          AppState.loginFotoDataUrl = compressed;
+          AppState.loginFotoFileName = file.name;
+          if (loginPhotoPreview) loginPhotoPreview.src = compressed;
+          if (loginPhotoPreviewContainer) loginPhotoPreviewContainer.style.display = "flex";
+          showToast("¡Foto de ingreso lista!", "success");
+        } catch (err) {
+          console.error("Error al procesar foto de ingreso:", err);
+          showToast("No se pudo procesar la foto seleccionada.", "error");
+        }
+      }
+    });
+  }
+
+  if (btnRemoveLoginPhoto) {
+    btnRemoveLoginPhoto.addEventListener("click", () => {
+      clearLoginPhoto();
+    });
+  }
+
+  function clearLoginPhoto() {
+    AppState.loginFotoDataUrl = null;
+    AppState.loginFotoFileName = "";
+    if (loginFileInput) loginFileInput.value = "";
+    if (loginPhotoPreview) loginPhotoPreview.src = "";
+    if (loginPhotoPreviewContainer) loginPhotoPreviewContainer.style.display = "none";
+  }
+
   if (btnLoginTrigger) btnLoginTrigger.addEventListener("click", () => openModal("loginModal"));
   if (btnOpenAuthFromUpload) btnOpenAuthFromUpload.addEventListener("click", () => openModal("loginModal"));
   if (btnCloseModal) btnCloseModal.addEventListener("click", () => closeModal("loginModal"));
 
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const nombre = document.getElementById("loginNombre").value;
-      const cedula = document.getElementById("loginCedula").value;
-      const ficha = document.getElementById("loginFicha").value;
+      const nombre = document.getElementById("loginNombre").value.trim();
+      const cedula = document.getElementById("loginCedula").value.trim();
+      const ficha = document.getElementById("loginFicha").value.trim();
       const jornada = document.getElementById("loginJornada").value;
 
-      if (!nombre.trim() || !cedula.trim()) {
+      if (!nombre || !cedula) {
         showToast("Nombre y Cédula son obligatorios.", "error");
         return;
       }
 
+      const btnSubmitLogin = document.getElementById("btnSubmitLogin");
+      const btnLoginSpinner = document.getElementById("btnLoginSpinner");
+      const btnLoginText = document.getElementById("btnLoginText");
+
+      if (btnSubmitLogin) btnSubmitLogin.disabled = true;
+      if (btnLoginSpinner) btnLoginSpinner.style.display = "inline-block";
+      if (btnLoginText) btnLoginText.textContent = "Guardando en Google Sheets...";
+
+      // 1. Guardar sesión del aprendiz
       saveUser(nombre, cedula, ficha, jornada);
+
+      // 2. Crear registro oficial de ingreso y asistencia
+      const timestamp = Date.now();
+      const registroIngreso = {
+        id: "ingreso_" + timestamp + "_" + Math.random().toString(36).substring(2, 7),
+        tipo: "Ingreso / Asistencia",
+        nombre,
+        cedula,
+        ambiente: ficha,
+        instructor: "",
+        jornada,
+        dia: 1, // Día 1: Carpa de inscripción al evento
+        actividad: "Ingreso Oficial Exposena CGAO 2026",
+        descripcion: `Registro de ingreso - Jornada ${jornada}`,
+        fotoDataUrl: AppState.loginFotoDataUrl || "",
+        fotoNombre: AppState.loginFotoFileName || `ingreso_${cedula}.jpg`,
+        fechaTimestamp: timestamp,
+        fechaFormateada: formatDate(timestamp)
+      };
+
+      // 3. Guardar en almacenamiento local para que aparezca en la galería
+      try {
+        await storage.addEvidence(registroIngreso);
+        await refreshEvidenceList();
+      } catch (errLocal) {
+        console.warn("Aviso al guardar local:", errLocal);
+      }
+
+      // 4. Enviar a Google Sheets
+      if (AppState.cloudWebhookUrl) {
+        syncToGoogleSheet(registroIngreso);
+        showToast(`¡Ingreso registrado y enviado a Google Sheets! Bienvenido ${nombre}.`, "success");
+      } else {
+        showToast(`¡Ingreso registrado! Bienvenido ${nombre}. Recuerda conectar tu Google Sheet.`, "info");
+      }
+
+      clearLoginPhoto();
       closeModal("loginModal");
+
+      if (btnSubmitLogin) btnSubmitLogin.disabled = false;
+      if (btnLoginSpinner) btnLoginSpinner.style.display = "none";
+      if (btnLoginText) btnLoginText.textContent = "💾 Registrar Mi Ingreso (Google Sheets)";
     });
   }
 
@@ -959,26 +1154,70 @@ function initModals() {
     btnLogout.addEventListener("click", logoutUser);
   }
 
-  // Cloud / GitHub Help Modal
-  const btnOpenCloudHelp = document.getElementById("btnOpenCloudHelp");
-  const btnCloseCloudModal = document.getElementById("btnCloseCloudModal");
-  const btnSaveWebhook = document.getElementById("btnSaveWebhook");
-  const webhookUrlInput = document.getElementById("webhookUrlInput");
+  // Google Sheet Modal Triggers & Actions
+  const btnHeaderSheetConfig = document.getElementById("btnHeaderSheetConfig");
+  const btnInstructorSheetConfig = document.getElementById("btnInstructorSheetConfig");
+  const btnFooterSheetConfig = document.getElementById("btnFooterSheetConfig");
+  const btnCloseSheetModal = document.getElementById("btnCloseSheetModal");
+  const btnSaveSheetUrl = document.getElementById("btnSaveSheetUrl");
+  const btnTestSheetConnection = document.getElementById("btnTestSheetConnection");
+  const inputSheetWebhookUrl = document.getElementById("inputSheetWebhookUrl");
 
-  if (webhookUrlInput && AppState.cloudWebhookUrl) {
-    webhookUrlInput.value = AppState.cloudWebhookUrl;
+  const openSheetModal = () => {
+    updateGoogleSheetStatus();
+    openModal("sheetModal");
+  };
+
+  if (btnHeaderSheetConfig) btnHeaderSheetConfig.addEventListener("click", openSheetModal);
+  if (btnInstructorSheetConfig) btnInstructorSheetConfig.addEventListener("click", openSheetModal);
+  if (btnFooterSheetConfig) btnFooterSheetConfig.addEventListener("click", openSheetModal);
+  if (btnCloseSheetModal) btnCloseSheetModal.addEventListener("click", () => closeModal("sheetModal"));
+
+  if (btnSaveSheetUrl) {
+    btnSaveSheetUrl.addEventListener("click", () => {
+      const url = (inputSheetWebhookUrl ? inputSheetWebhookUrl.value : "").trim();
+      AppState.cloudWebhookUrl = url;
+      localStorage.setItem("exposena_google_sheet_url", url);
+      localStorage.setItem("exposena_webhook_url", url);
+      updateGoogleSheetStatus();
+      if (url) {
+        showToast("¡Google Sheet conectado y guardado exitosamente!", "success");
+      } else {
+        showToast("Se ha desactivado la conexión con Google Sheets.", "info");
+      }
+      closeModal("sheetModal");
+    });
   }
 
-  if (btnOpenCloudHelp) btnOpenCloudHelp.addEventListener("click", () => openModal("cloudModal"));
-  if (btnCloseCloudModal) btnCloseCloudModal.addEventListener("click", () => closeModal("cloudModal"));
+  if (btnTestSheetConnection) {
+    btnTestSheetConnection.addEventListener("click", async () => {
+      const url = (inputSheetWebhookUrl ? inputSheetWebhookUrl.value : "").trim() || AppState.cloudWebhookUrl;
+      if (!url) {
+        showToast("Primero pega la URL de tu Google Apps Script.", "error");
+        if (inputSheetWebhookUrl) inputSheetWebhookUrl.focus();
+        return;
+      }
 
-  if (btnSaveWebhook) {
-    btnSaveWebhook.addEventListener("click", () => {
-      const url = webhookUrlInput.value.trim();
+      showToast("Enviando prueba a Google Sheets...", "info");
       AppState.cloudWebhookUrl = url;
-      localStorage.setItem("exposena_webhook_url", url);
-      showToast("Configuración de nube guardada.", "success");
-      closeModal("cloudModal");
+      
+      const testRecord = {
+        id: "TEST-" + Date.now(),
+        tipo: "Prueba de Conexión",
+        nombre: "Instructor / Sistema",
+        cedula: "1099202449",
+        ambiente: "Ambiente Central",
+        jornada: "General",
+        dia: 1,
+        actividad: "Prueba de Sincronización Google Sheets",
+        descripcion: "Verificación de conexión exitosa entre Exposena 2026 y Google Sheets.",
+        fotoDataUrl: ""
+      };
+
+      await syncToGoogleSheet(testRecord);
+      localStorage.setItem("exposena_google_sheet_url", url);
+      updateGoogleSheetStatus();
+      showToast("¡Petición enviada! Revisa tu Google Sheet, debe aparecer la fila de prueba.", "success");
     });
   }
 
@@ -1063,7 +1302,12 @@ window.ExposenaApp = {
     const lightboxImage = document.getElementById("lightboxImage");
     const lightboxDetails = document.getElementById("lightboxDetails");
 
-    lightboxImage.src = item.fotoDataUrl;
+    if (item.fotoDataUrl) {
+      lightboxImage.src = item.fotoDataUrl;
+      lightboxImage.style.display = "block";
+    } else {
+      lightboxImage.style.display = "none";
+    }
     lightboxDetails.innerHTML = `
       <h3 style="color: #fff; margin-bottom: 6px;">${item.actividad}</h3>
       <p style="color: #39A900; font-weight: 700; margin-bottom: 4px;">Aprendiz: ${item.nombre} (C.C. ${item.cedula})</p>
@@ -1081,6 +1325,10 @@ window.ExposenaApp = {
     }
     const item = AppState.allEvidences.find(e => e.id === id);
     if (!item) return;
+    if (!item.fotoDataUrl) {
+      showToast("Este registro de asistencia no incluye fotografía para descargar.", "info");
+      return;
+    }
     const cleanNombre = item.nombre.replace(/[^a-zA-Z0-9]/g, "_");
     const filename = `Dia${item.dia}_${item.cedula}_${cleanNombre}.jpg`;
     
@@ -1125,6 +1373,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await storage.init();
   loadStoredUser();
   updateInstructorUI();
+  updateGoogleSheetStatus();
   initCronograma();
   initUploadHandlers();
   initGalleryControls();

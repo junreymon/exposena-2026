@@ -61,6 +61,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 72px;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   color: var(--text-main);
   background-color: var(--bg-main);
@@ -70,10 +71,15 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+  max-width: 100vw;
   background: radial-gradient(circle at 10% 20%, rgba(0, 50, 77, 0.5) 0%, transparent 40%),
               radial-gradient(circle at 90% 70%, rgba(57, 169, 0, 0.15) 0%, transparent 45%),
               var(--bg-main);
   background-attachment: fixed;
+}
+
+section[id], .section {
+  scroll-margin-top: 72px;
 }
 
 /* Tipografía de Títulos */
@@ -181,6 +187,8 @@ button {
 .user-session-bar {
   display: flex;
   align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .user-badge {
@@ -1658,21 +1666,30 @@ button {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (MÓVILES, TABLETS)
+   OPTIMIZACIÓN MÓVIL Y AUTO-RESPONSIVE INTEGRAL
+   Diseñado para Smartphones (iOS / Android), Tablets y Pantallas Táctiles
    ========================================================================== */
+
+/* Botón Flotante para Móviles (Cámara Rápida) */
+.mobile-floating-camera {
+  display: none;
+}
+
+/* TABLETS Y PANTALLAS MEDIANAS (<= 992px) */
 @media (max-width: 992px) {
   .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
-    gap: 30px;
+    gap: 28px;
   }
 
   .hero-chip {
-    margin: 0 auto 16px auto;
+    margin: 0 auto 14px auto;
   }
 
   .hero-desc {
-    margin: 0 auto 24px auto;
+    margin: 0 auto 22px auto;
+    max-width: 600px;
   }
 
   .hero-actions {
@@ -1680,7 +1697,7 @@ button {
   }
 
   .banner-card-wrapper {
-    max-width: 550px;
+    max-width: 520px;
     margin: 0 auto;
     transform: none;
   }
@@ -1689,278 +1706,386 @@ button {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .days-nav {
-    grid-template-columns: repeat(5, 1fr);
-    overflow-x: auto;
-  }
-
-  .day-tab {
-    min-width: 110px;
-  }
-
   .sub-schedule-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* ==========================================================================
-   OPTIMIZACIÓN MÓVIL AUTO-RESPONSIVE (< 768px y < 480px)
-   Diseñado específicamente para smartphones y tablets
-   ========================================================================== */
-
-/* Botón Flotante para Móviles (Cámara Rápida) */
-.mobile-floating-camera {
-  display: none;
-}
-
+/* SMARTPHONES Y TABLETS PEQUEÑAS (<= 768px) */
 @media (max-width: 768px) {
-  /* Contenedores y márgenes de pantalla */
+  /* Contenedor fluido sin desbordamiento */
   .container {
     padding: 0 14px;
+    max-width: 100%;
   }
 
   .section {
-    padding: 40px 0;
+    padding: 34px 0;
+    scroll-margin-top: 68px;
   }
 
-  /* Header compacto en celular */
+  section[id] {
+    scroll-margin-top: 68px;
+  }
+
+  /* Header Compacto y Limpio en Celular */
   .main-header {
     padding: 8px 0;
+    min-height: 54px;
   }
 
-  .sena-logo-icon {
-    width: 38px;
-    height: 38px;
+  .header-inner {
+    gap: 8px;
   }
 
   .brand {
-    gap: 10px;
+    gap: 9px;
+  }
+
+  .sena-logo-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
   }
 
   .brand-tag {
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
   }
 
   .brand-title {
-    font-size: 1.12rem;
+    font-size: 1.1rem;
+    line-height: 1.1;
+    white-space: nowrap;
   }
 
+  /* Barra de Sesión de Usuario en Móvil */
   .user-session-bar {
     gap: 6px;
+    flex-shrink: 0;
   }
 
-  .user-session-bar .btn-primary,
-  .user-session-bar .btn-secondary {
+  .user-session-bar .btn-primary {
     padding: 7px 11px;
     font-size: 0.78rem;
+    gap: 5px;
+    border-radius: var(--radius-sm);
+  }
+
+  .user-session-bar .btn-secondary {
+    padding: 7px 10px;
+    font-size: 0.76rem;
+    gap: 5px;
     border-radius: var(--radius-sm);
   }
 
   .user-badge {
-    padding: 4px 10px;
-    gap: 8px;
-    max-width: 160px;
+    padding: 4px 8px;
+    gap: 6px;
+    max-width: 140px;
   }
 
   .user-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 0.72rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .user-info {
+    max-width: 75px;
   }
 
   .user-name {
-    font-size: 0.76rem;
-    max-width: 80px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    max-width: 70px;
   }
 
   .user-cedula {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
+    line-height: 1.1;
   }
 
   .btn-logout {
     padding: 3px 6px;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
   }
 
-  /* Tipografía fluida en Hero */
+  .btn-logout-text {
+    display: none; /* Ahorra espacio crucial en celular mostrando solo el icono */
+  }
+
+  /* Hero Section Adaptativo */
   .hero-section {
-    padding: 25px 0 20px 0;
+    padding: 20px 0 16px 0;
   }
 
   .hero-chip {
-    font-size: 0.74rem;
-    padding: 5px 12px;
+    font-size: 0.72rem;
+    padding: 4px 10px;
     margin-bottom: 12px;
   }
 
   .hero-title {
-    font-size: clamp(1.65rem, 6.5vw, 2.25rem);
-    line-height: 1.2;
-    margin-bottom: 14px;
+    font-size: clamp(1.45rem, 6.2vw, 2.1rem);
+    line-height: 1.22;
+    margin-bottom: 12px;
   }
 
   .hero-desc {
-    font-size: 0.94rem;
-    line-height: 1.5;
-    margin-bottom: 20px;
+    font-size: 0.88rem;
+    line-height: 1.48;
+    margin-bottom: 18px;
   }
 
+  /* Botones del Hero: Distribución Inteligente en Celulares */
   .hero-actions {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
     width: 100%;
-    gap: 10px;
+    margin-bottom: 14px;
   }
 
-  .hero-actions a {
+  .hero-actions .btn-cta {
+    grid-column: 1 / -1; /* Botón principal ocupa todo el ancho arriba */
     width: 100%;
+    padding: 13px 16px;
+    font-size: 0.94rem;
+    font-weight: 800;
     justify-content: center;
-    padding: 12px;
-    font-size: 0.92rem;
-  }
-
-  .banner-card-wrapper {
-    transform: none !important;
-    border-radius: var(--radius-md);
-    margin: 15px auto 0 auto;
-  }
-
-  /* Barra de Estadísticas en 2 Columnas */
-  .stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin: 20px auto;
-  }
-
-  .stat-card {
-    padding: 12px 8px;
     border-radius: var(--radius-sm);
   }
 
+  .hero-actions .btn-secondary {
+    width: 100%;
+    padding: 9px 6px;
+    font-size: 0.78rem;
+    justify-content: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+  }
+
+  .hero-actions .btn-secondary svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  /* Afiche Oficial Adaptativo */
+  .banner-card-wrapper {
+    transform: none !important;
+    border-radius: var(--radius-md);
+    margin: 10px auto 0 auto;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .hero-banner-img {
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;
+    background: #00121d;
+    display: block;
+    border-radius: var(--radius-md);
+  }
+
+  .banner-badge {
+    font-size: 0.74rem;
+    padding: 5px 10px;
+  }
+
+  /* Barra de Estadísticas en 2 Columnas Limpias */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 16px auto;
+    padding: 0;
+  }
+
+  .stat-card {
+    padding: 12px 6px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+
   .stat-num {
-    font-size: 1.55rem;
+    font-size: 1.42rem;
+    line-height: 1.2;
   }
 
   .stat-label {
     font-size: 0.68rem;
+    line-height: 1.25;
   }
 
-  /* Selector de Días Horizontal Táctil */
+  /* Selector de Días Horizontal - Táctil Suave SIN Barra Gris Fea */
   .days-nav {
     display: flex;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
     gap: 8px;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    scrollbar-width: thin;
+    padding: 4px 2px 8px 2px;
+    margin-bottom: 14px;
+    scrollbar-width: none; /* Elimina scrollbar fea en Firefox */
+    -ms-overflow-style: none; /* IE / Edge */
   }
 
   .days-nav::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .days-nav::-webkit-scrollbar-thumb {
-    background: var(--border-accent);
-    border-radius: 4px;
+    display: none; /* Elimina scrollbar fea en Chrome/Safari/Móvil */
+    width: 0;
+    height: 0;
   }
 
   .day-tab {
-    flex: 0 0 115px;
-    min-width: 115px;
+    flex: 0 0 auto;
+    min-width: 122px;
     scroll-snap-align: start;
-    padding: 10px 8px;
+    padding: 10px 12px;
     border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
   }
 
   .day-badge {
     font-size: 0.66rem;
-    padding: 2px 6px;
+    padding: 2px 7px;
   }
 
   .day-date {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 
   .day-title {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    width: auto;
   }
 
   /* Paneles de Contenido del Cronograma */
   .day-content-wrapper {
-    padding: 18px 14px;
+    padding: 16px 12px;
     border-radius: var(--radius-md);
   }
 
   .day-panel-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
   }
 
   .day-panel-header h3 {
-    font-size: 1.15rem;
+    font-size: 1.08rem;
+    line-height: 1.35;
   }
 
   .day-panel-header p {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
   }
 
   .btn-fast-upload {
     width: 100%;
     text-align: center;
-    padding: 10px;
+    padding: 11px;
     font-size: 0.86rem;
+    font-weight: 700;
+    background: rgba(57, 169, 0, 0.2);
+    border: 1px solid var(--sena-green);
+    color: #4ade80;
+    border-radius: var(--radius-sm);
+    justify-content: center;
   }
 
   .timeline-grid {
-    gap: 12px;
+    gap: 10px;
   }
 
   .timeline-item {
     grid-template-columns: 1fr;
     gap: 8px;
-    padding: 14px;
+    padding: 13px 14px;
+    border-radius: var(--radius-sm);
   }
 
   .time-pill {
     align-self: flex-start;
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     padding: 4px 10px;
   }
 
   .timeline-body h4 {
-    font-size: 0.96rem;
+    font-size: 0.94rem;
+    line-height: 1.35;
   }
 
   .timeline-body p {
-    font-size: 0.86rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
   }
 
   .sub-schedule-grid {
     grid-template-columns: 1fr;
     gap: 8px;
+    margin-top: 10px;
   }
 
   .sub-schedule-card {
     padding: 10px 12px;
+    border-radius: var(--radius-sm);
   }
 
   /* Formulario de Carga en Móvil */
   .upload-wrapper {
-    padding: 20px 14px;
+    padding: 18px 12px;
     border-radius: var(--radius-md);
+    margin: 0;
+    width: 100%;
   }
 
   .section-title {
-    font-size: 1.55rem;
+    font-size: 1.45rem;
+    line-height: 1.25;
   }
 
   .section-subtitle {
-    font-size: 0.88rem;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  /* Aviso de autenticación en Móvil */
+  .auth-notice {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 12px;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+  }
+
+  .auth-notice-icon {
+    font-size: 1.5rem;
+  }
+
+  .auth-notice .btn-primary {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+    font-size: 0.86rem;
   }
 
   .form-row-2 {
@@ -1968,30 +2093,48 @@ button {
     gap: 12px;
   }
 
-  /* ENTRADAS TÁCTILES: 16px mínimo para evitar zoom molesto de iOS Safari */
+  /* Entradas Táctiles: 16px mínimo para evitar zoom de iOS Safari */
   .form-input, .form-select, .form-textarea {
     font-size: 16px !important;
-    padding: 13px 14px;
+    padding: 12px 14px;
     border-radius: var(--radius-sm);
+    min-height: 46px;
   }
 
-  /* Zona de Fotografía / Cámara para Dedos */
+  /* Zona de Fotografía / Cámara para Móviles */
   .drop-zone {
-    padding: 22px 14px;
+    padding: 18px 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .upload-icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .prompt-text strong {
+    font-size: 0.94rem;
+  }
+
+  .prompt-text span {
+    font-size: 0.76rem;
+    line-height: 1.4;
   }
 
   .prompt-buttons {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     width: 100%;
-    max-width: 290px;
-    gap: 10px;
+    max-width: 100%;
+    gap: 8px;
     margin-top: 12px;
   }
 
   #btnTriggerCamera {
-    width: 100%;
-    padding: 13px 18px;
-    font-size: 0.96rem;
+    flex: 1;
+    min-height: 46px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
     font-weight: 800;
     background: var(--sena-green);
     color: #000;
@@ -2004,9 +2147,10 @@ button {
   }
 
   #btnTriggerGallery {
-    width: 100%;
-    padding: 11px 16px;
-    font-size: 0.88rem;
+    flex: 1;
+    min-height: 46px;
+    padding: 10px 12px;
+    font-size: 0.84rem;
     font-weight: 600;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -2015,11 +2159,15 @@ button {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    color: #fff;
   }
 
   .btn-submit {
-    padding: 16px;
-    font-size: 1rem;
+    width: 100%;
+    min-height: 50px;
+    padding: 14px;
+    font-size: 0.98rem;
+    font-weight: 800;
     border-radius: var(--radius-sm);
   }
 
@@ -2027,27 +2175,41 @@ button {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 12px;
   }
 
   .header-tools {
     width: 100%;
     flex-direction: column;
+    gap: 8px;
   }
 
   .btn-export-excel, .btn-export-zip {
     width: 100%;
     padding: 12px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     justify-content: center;
+    min-height: 44px;
+  }
+
+  .instructor-unlock-hint {
+    width: 100%;
+  }
+
+  .instructor-unlock-hint button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+    font-size: 0.82rem;
   }
 
   .gallery-controls {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 10px;
   }
 
+  /* Filtros de Galería SIN Scrollbar Fea */
   .filter-pills {
     width: 100%;
     display: flex;
@@ -2055,32 +2217,46 @@ button {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
     gap: 6px;
-    padding-bottom: 6px;
+    padding: 4px 2px 8px 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .filter-pills::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   .filter-pill {
     padding: 7px 12px;
     font-size: 0.78rem;
     flex-shrink: 0;
+    scroll-snap-align: start;
+    border-radius: var(--radius-full);
   }
 
   .search-box {
     max-width: 100%;
+    width: 100%;
     padding: 10px 14px;
+    min-height: 46px;
   }
 
   .search-box input {
     font-size: 16px !important;
   }
 
-  /* Grilla de Tarjetas en Móvil (1 Sola Columna Limpia) */
+  /* Grilla de Tarjetas en Móvil (1 Sola Columna Fluida) */
   .gallery-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+    width: 100%;
   }
 
   .evidence-card {
     border-radius: var(--radius-md);
+    width: 100%;
   }
 
   .evidence-thumb-wrapper {
@@ -2101,22 +2277,24 @@ button {
   .btn-card-action {
     flex: 1;
     justify-content: center;
-    padding: 9px 12px;
+    padding: 9px 10px;
     font-size: 0.82rem;
-    min-height: 40px;
+    min-height: 42px;
   }
 
-  /* Modales en Móvil */
+  /* Modales en Móvil: Centrados y Cómodos con Teclado */
   .modal-backdrop {
-    padding: 12px;
-    align-items: flex-end;
+    padding: 14px;
+    align-items: center;
+    justify-content: center;
   }
 
   .modal-card {
     width: 100%;
-    max-width: 100%;
-    border-radius: 20px 20px 0 0;
-    max-height: 85vh;
+    max-width: 440px;
+    margin: auto;
+    border-radius: var(--radius-md);
+    max-height: 90vh;
     overflow-y: auto;
   }
 
@@ -2125,57 +2303,145 @@ button {
   }
 
   .modal-body {
-    padding: 18px 16px;
-    gap: 14px;
+    padding: 16px;
+    gap: 12px;
   }
 
-  /* Botón Flotante para Celular (Acceso Inmediato a la Cámara) */
+  .modal-body input {
+    font-size: 16px !important;
+    min-height: 46px;
+    padding: 12px 14px;
+  }
+
+  .modal-body button[type="submit"] {
+    min-height: 48px;
+    font-size: 0.94rem;
+  }
+
+  /* Lightbox en Móvil */
+  .lightbox-modal {
+    padding: 8px;
+  }
+
+  .lightbox-close {
+    top: 12px;
+    right: 14px;
+    font-size: 2rem;
+  }
+
+  .lightbox-content {
+    max-width: 100%;
+    max-height: 94vh;
+    border-radius: var(--radius-md);
+  }
+
+  .lightbox-content img {
+    max-height: 55vh;
+  }
+
+  .lightbox-details {
+    padding: 12px 14px;
+    font-size: 0.84rem;
+  }
+
+  /* Botón Flotante para Celular (Acceso Rápido a Cámara) */
   .mobile-floating-camera {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
-    z-index: 990;
-    padding: 12px 18px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: 14px;
+    z-index: 99;
+    padding: 10px 16px;
     background: linear-gradient(135deg, var(--sena-green), #2c8c00);
     color: #ffffff;
     font-weight: 800;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     border-radius: var(--radius-full);
-    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    animation: floatBounce 2.5s infinite ease-in-out;
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s ease;
   }
 
-  @keyframes floatBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+  .mobile-floating-camera:active {
+    transform: scale(0.94);
+  }
+
+  /* Padding inferior para que el botón flotante no tape el footer */
+  body {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
   .footer-content {
     flex-direction: column;
     text-align: center;
-    gap: 14px;
-    padding-bottom: 20px;
+    gap: 12px;
+    padding-bottom: 10px;
   }
 }
 
-/* Pantallas Extra Pequeñas (< 380px) */
+/* SMARTPHONES PEQUEÑOS (<= 380px) */
 @media (max-width: 380px) {
   .brand-title {
     font-size: 0.98rem;
   }
 
-  .btn-primary, .btn-secondary {
-    padding: 6px 9px;
-    font-size: 0.74rem;
+  .brand-tag {
+    font-size: 0.58rem;
+  }
+
+  .sena-logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .user-session-bar .btn-primary,
+  .user-session-bar .btn-secondary {
+    padding: 6px 8px;
+    font-size: 0.72rem;
+  }
+
+  .btn-instructor-text {
+    font-size: 0.7rem;
+  }
+
+  .user-badge {
+    padding: 3px 6px;
+    max-width: 115px;
+  }
+
+  .user-name {
+    max-width: 50px;
+  }
+
+  .hero-actions {
+    grid-template-columns: 1fr;
   }
 
   .day-tab {
-    flex: 0 0 100px;
-    min-width: 100px;
+    min-width: 108px;
+    padding: 8px 10px;
+  }
+
+  .prompt-buttons {
+    flex-direction: column;
+  }
+
+  #btnTriggerCamera, #btnTriggerGallery {
+    width: 100%;
+  }
+}
+
+/* SMARTPHONES ULTRA ESTRECHOS (<= 330px) */
+@media (max-width: 330px) {
+  .btn-instructor-text {
+    display: none; /* En pantallas ultra pequeñas, solo mostrar el icono del candado */
+  }
+
+  .user-cedula {
+    display: none;
   }
 }
 
@@ -2194,5 +2460,264 @@ button {
   padding: 6px 12px;
   border-radius: var(--radius-full);
 }
+
+/* ==========================================================================
+   ESTILOS: INTEGRACIÓN GOOGLE SHEETS & FOTO DE INGRESO
+   ========================================================================== */
+
+/* Botón de Estado en Barra Superior */
+.btn-sheet-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sheet-status:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.sheet-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94a3b8;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.sheet-status-dot.active {
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+/* Badge Opcional / Recomendado */
+.badge-optional {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(57, 169, 0, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(57, 169, 0, 0.3);
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+/* Captura de Foto en Modal de Ingreso */
+.login-photo-group {
+  margin-top: 6px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+}
+
+.login-photo-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-login-photo-cam {
+  flex: 2;
+  min-height: 44px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--sena-green), #2c8c00);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 800;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.btn-login-photo-cam:hover {
+  filter: brightness(1.1);
+}
+
+.btn-login-photo-cam:active {
+  transform: scale(0.97);
+}
+
+.btn-login-photo-gal {
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-login-photo-gal:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Vista previa de la foto en modal */
+.login-photo-preview {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(57, 169, 0, 0.3);
+}
+
+.login-photo-preview img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--sena-green);
+}
+
+.login-photo-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-photo-meta span {
+  font-size: 0.8rem;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.btn-remove-login-photo {
+  align-self: flex-start;
+  font-size: 0.76rem;
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  text-decoration: underline;
+}
+
+/* Modal de Conexión Google Sheets */
+.sheet-connection-status-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.sheet-connection-status-box.connected {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.status-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.status-circle.connected {
+  background: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+}
+
+.sheet-connection-status-box p {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.sheet-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.sheet-modal-actions button {
+  flex: 1;
+}
+
+.sheet-guide-link-box {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.sheet-guide-link {
+  display: inline-block;
+  color: #38bdf8;
+  font-size: 0.84rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.sheet-guide-link:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 520px) {
+  .btn-sheet-status {
+    padding: 6px 10px;
+    font-size: 0.74rem;
+  }
+
+  .login-photo-buttons {
+    flex-direction: column;
+  }
+
+  .btn-login-photo-cam, .btn-login-photo-gal {
+    width: 100%;
+  }
+
+  .sheet-modal-actions {
+    flex-direction: column;
+  }
+}
+
 
 
