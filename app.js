@@ -1022,62 +1022,6 @@ function initModals() {
   const loginForm = document.getElementById("loginForm");
   const btnLogout = document.getElementById("btnLogout");
 
-  // Captura de Foto en Modal de Ingreso
-  const loginFileInput = document.getElementById("loginFileInput");
-  const btnLoginCamera = document.getElementById("btnLoginCamera");
-  const btnLoginGallery = document.getElementById("btnLoginGallery");
-  const loginPhotoPreviewContainer = document.getElementById("loginPhotoPreviewContainer");
-  const loginPhotoPreview = document.getElementById("loginPhotoPreview");
-  const btnRemoveLoginPhoto = document.getElementById("btnRemoveLoginPhoto");
-
-  if (btnLoginCamera && loginFileInput) {
-    btnLoginCamera.addEventListener("click", () => {
-      loginFileInput.setAttribute("capture", "user");
-      loginFileInput.click();
-    });
-  }
-
-  if (btnLoginGallery && loginFileInput) {
-    btnLoginGallery.addEventListener("click", () => {
-      loginFileInput.removeAttribute("capture");
-      loginFileInput.click();
-    });
-  }
-
-  if (loginFileInput) {
-    loginFileInput.addEventListener("change", async (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        const file = e.target.files[0];
-        try {
-          showToast("Procesando foto de ingreso...", "info");
-          const compressed = await compressImage(file, 1200, 0.78);
-          AppState.loginFotoDataUrl = compressed;
-          AppState.loginFotoFileName = file.name;
-          if (loginPhotoPreview) loginPhotoPreview.src = compressed;
-          if (loginPhotoPreviewContainer) loginPhotoPreviewContainer.style.display = "flex";
-          showToast("¡Foto de ingreso lista!", "success");
-        } catch (err) {
-          console.error("Error al procesar foto de ingreso:", err);
-          showToast("No se pudo procesar la foto seleccionada.", "error");
-        }
-      }
-    });
-  }
-
-  if (btnRemoveLoginPhoto) {
-    btnRemoveLoginPhoto.addEventListener("click", () => {
-      clearLoginPhoto();
-    });
-  }
-
-  function clearLoginPhoto() {
-    AppState.loginFotoDataUrl = null;
-    AppState.loginFotoFileName = "";
-    if (loginFileInput) loginFileInput.value = "";
-    if (loginPhotoPreview) loginPhotoPreview.src = "";
-    if (loginPhotoPreviewContainer) loginPhotoPreviewContainer.style.display = "none";
-  }
-
   if (btnLoginTrigger) btnLoginTrigger.addEventListener("click", () => openModal("loginModal"));
   if (btnOpenAuthFromUpload) btnOpenAuthFromUpload.addEventListener("click", () => openModal("loginModal"));
   if (btnCloseModal) btnCloseModal.addEventListener("click", () => closeModal("loginModal"));
@@ -1095,18 +1039,23 @@ function initModals() {
         return;
       }
 
+      if (!ficha) {
+        showToast("El Ambiente o Ficha es obligatorio.", "error");
+        return;
+      }
+
       const btnSubmitLogin = document.getElementById("btnSubmitLogin");
       const btnLoginSpinner = document.getElementById("btnLoginSpinner");
       const btnLoginText = document.getElementById("btnLoginText");
 
       if (btnSubmitLogin) btnSubmitLogin.disabled = true;
       if (btnLoginSpinner) btnLoginSpinner.style.display = "inline-block";
-      if (btnLoginText) btnLoginText.textContent = "Guardando en Google Sheets...";
+      if (btnLoginText) btnLoginText.textContent = "Registrando en Google Sheets...";
 
       // 1. Guardar sesión del aprendiz
       saveUser(nombre, cedula, ficha, jornada);
 
-      // 2. Crear registro oficial de ingreso y asistencia
+      // 2. Crear registro oficial de ingreso y asistencia (Solo Datos)
       const timestamp = Date.now();
       const registroIngreso = {
         id: "ingreso_" + timestamp + "_" + Math.random().toString(36).substring(2, 7),
@@ -1119,13 +1068,13 @@ function initModals() {
         dia: 1, // Día 1: Carpa de inscripción al evento
         actividad: "Ingreso Oficial Exposena CGAO 2026",
         descripcion: `Registro de ingreso - Jornada ${jornada}`,
-        fotoDataUrl: AppState.loginFotoDataUrl || "",
-        fotoNombre: AppState.loginFotoFileName || `ingreso_${cedula}.jpg`,
+        fotoDataUrl: "",
+        fotoNombre: "",
         fechaTimestamp: timestamp,
         fechaFormateada: formatDate(timestamp)
       };
 
-      // 3. Guardar en almacenamiento local para que aparezca en la galería
+      // 3. Guardar en almacenamiento local para que aparezca en la lista
       try {
         await storage.addEvidence(registroIngreso);
         await refreshEvidenceList();
@@ -1133,20 +1082,19 @@ function initModals() {
         console.warn("Aviso al guardar local:", errLocal);
       }
 
-      // 4. Enviar a Google Sheets
+      // 4. Enviar datos a Google Sheets
       if (AppState.cloudWebhookUrl) {
         syncToGoogleSheet(registroIngreso);
-        showToast(`¡Ingreso registrado y enviado a Google Sheets! Bienvenido ${nombre}.`, "success");
+        showToast(`¡Ingreso registrado y guardado en Google Sheets! Bienvenido ${nombre}.`, "success");
       } else {
-        showToast(`¡Ingreso registrado! Bienvenido ${nombre}. Recuerda conectar tu Google Sheet.`, "info");
+        showToast(`¡Ingreso registrado! Bienvenido ${nombre}.`, "success");
       }
 
-      clearLoginPhoto();
       closeModal("loginModal");
 
       if (btnSubmitLogin) btnSubmitLogin.disabled = false;
       if (btnLoginSpinner) btnLoginSpinner.style.display = "none";
-      if (btnLoginText) btnLoginText.textContent = "💾 Registrar Mi Ingreso (Google Sheets)";
+      if (btnLoginText) btnLoginText.textContent = "✅ Confirmar e Ingresar (Registrar en Google Sheets)";
     });
   }
 
